@@ -110,8 +110,8 @@
   .q-btn.active .q-number { color: var(--accent); }
 
   .q-text {
-    font-size: 13px;
-    line-height: 20px;
+    font-size: 15px;
+    line-height: 22px;
     color: var(--text);
     font-weight: 600;
   }
@@ -230,7 +230,7 @@
 
   /* subtitle / transcript */
   .subtitle {
-    width: 340px;
+    width: 100%;
     min-height: 48px;
     margin-top: 12px;
     background: var(--bg2);
@@ -245,6 +245,7 @@
     transition: opacity 0.3s;
   }
   .subtitle.visible { opacity: 1; }
+  .subtitle-mob { display: none; }
 
   /* ── RESPONSIVE ── */
   @media (max-width: 800px) {
@@ -256,8 +257,8 @@
     }
     .character-col { position: static; order: -1; }
     .canvas-wrap { width: 100%; height: 300px; }
-    .subtitle { width: 100%; }
-    .col-label { font-size: 16px; }
+    .subtitle-desk { display: none; }
+    .subtitle-mob { display: block; }
     .contact-btn { width: 100%; justify-content: center; }
   }
 
@@ -265,8 +266,7 @@
     body { padding: 16px 12px; }
     .canvas-wrap { height: 260px; }
     .q-btn { padding: 14px 16px; }
-    .q-text { font-size: 12px; }
-    .col-label { font-size: 15px; }
+    .q-text { font-size: 14px; }
   }
 </style>
 </head>
@@ -306,23 +306,25 @@
         <div class="play-dot"><span></span><span></span><span></span><span></span></div>
         <span class="playing-label">speaking</span>
       </div>
-      <a class="contact-btn" id="contact-btn" href="https://rive.expert" target="_blank">
-        <svg viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M1.5 11.5L11.5 1.5M11.5 1.5H4.5M11.5 1.5V8.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        Let's talk
-      </a>
     </button>
+
+    <a class="contact-btn" id="contact-btn" href="https://rive.expert" target="_blank">
+      <svg viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M1.5 11.5L11.5 1.5M11.5 1.5H4.5M11.5 1.5V8.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      LET'S TALK
+    </a>
+
+    <div class="subtitle subtitle-desk" id="subtitle-desk"></div>
   </div>
 
   <!-- RIGHT: Character -->
   <div class="character-col">
-    <div class="col-label">.mp3 <span>→ Rive</span></div>
     <div class="canvas-wrap">
       <canvas id="rive-canvas"></canvas>
     </div>
     <div class="char-status" id="char-status">Loading…</div>
-    <div class="subtitle" id="subtitle"></div>
+    <div class="subtitle subtitle-mob" id="subtitle-mob"></div>
   </div>
 
 </div>
@@ -414,14 +416,15 @@ function setSilence() {
   if (inputs['viseme_sil']) inputs['viseme_sil'].value = 100;
 }
 
-function setViseme(visemeIndex) {
+function setViseme(visemeIndex, weight = 1.0) {
   const name = VISEME_INPUT[visemeIndex];
   if (!name) return;
   setAllVisemesOff();
+  const val = Math.round(weight * 100);
   if (visemeIndex === 0) {
-    if (inputs['viseme_sil']) inputs['viseme_sil'].value = 100;
+    if (inputs['viseme_sil']) inputs['viseme_sil'].value = val;
   } else {
-    if (inputs[name]) inputs[name].value = 100;
+    if (inputs[name]) inputs[name].value = val;
   }
 }
 
@@ -442,9 +445,7 @@ function stopCurrent() {
   // Reset all button states
   document.querySelectorAll('.q-btn').forEach(b => b.classList.remove('active', 'playing'));
   // Hide subtitle
-  const sub = document.getElementById('subtitle');
-  sub.textContent = '';
-  sub.classList.remove('visible');
+  document.querySelectorAll('.subtitle').forEach(s => { s.textContent = ''; s.classList.remove('visible'); });
   currentPhraseIdx = -1;
 }
 
@@ -464,13 +465,11 @@ function playPhrase(idx) {
   btn.classList.add('active', 'playing');
 
   // Show subtitle
-  const sub = document.getElementById('subtitle');
-  sub.textContent = '\u201c' + phrase.text + '\u201d';
-  sub.classList.add('visible');
+  document.querySelectorAll('.subtitle').forEach(s => { s.textContent = '\u201c' + phrase.text + '\u201d'; s.classList.add('visible'); });
 
   // Schedule viseme events
-  phrase.timeline.forEach(({ viseme, timeMs }) => {
-    timeouts.push(setTimeout(() => setViseme(viseme), timeMs));
+  phrase.timeline.forEach(({ viseme, timeMs, weight = 1.0 }) => {
+    timeouts.push(setTimeout(() => setViseme(viseme, weight), timeMs));
   });
 
   // Schedule return to silence after last event
@@ -487,9 +486,8 @@ function playPhrase(idx) {
     btn.classList.remove('active', 'playing');
     currentPhraseIdx = -1;
     // Hide subtitle
-    const sub = document.getElementById('subtitle');
-    sub.classList.remove('visible');
-    setTimeout(() => { sub.textContent = ''; }, 300);
+    document.querySelectorAll('.subtitle').forEach(s => s.classList.remove('visible'));
+    setTimeout(() => { document.querySelectorAll('.subtitle').forEach(s => { s.textContent = ''; }); }, 300);
     // Show contact button for phrase 3
     if (idx === 2) {
       const cb = document.getElementById('contact-btn');
