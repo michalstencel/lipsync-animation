@@ -334,17 +334,17 @@ const RIV_B64 = "UklWRQcA/9yCAcQB6gSuAvIEtgTnBKgB7ATsAaUB6QStAq0ErQHxBOYEqgS9Ae4
 
 const PHRASES = [
   {
-    audio: 'phrase1.mp3',
+    audio: new Audio('phrase1.mp3'),
     timeline: null,
     text: "I'm a real-time lip sync character built in Rive. My mouth is driven by a state machine with ten viseme states. No video, no pre-render — just code running in the browser."
   },
   {
-    audio: 'phrase2.mp3',
+    audio: new Audio('phrase2.mp3'),
     timeline: null,
     text: "My mouth is controlled by percentage values from 0 to 100, blended across viseme states in a state machine. Each state maps to a mouth shape: silence, vowels, consonants. A JavaScript timeline drives them in sync with audio."
   },
   {
-    audio: 'phrase3.mp3',
+    audio: new Audio('phrase3.mp3'),
     timeline: null,
     text: "This character is fully embeddable in any web or mobile app, and runs on iOS, Android, Web, and Flutter. Built by Michał at Rive.Expert, who specializes in this kind of work. Hit the button below and let's talk."
   },
@@ -483,9 +483,10 @@ function playPhrase(idx) {
   }
 
   // Play audio
-  const audio = new Audio(phrase.audio);
+  const audio = phrase.audio;
+  audio.currentTime = 0;
   currentAudio = audio;
-  audio.play().catch(() => {});
+  audio.play().catch(e => console.warn('Audio play error:', e));
 
   audio.addEventListener('ended', () => {
     setSilence();
