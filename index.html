@@ -247,7 +247,6 @@
     transition: opacity 0.3s;
   }
   .subtitle.visible { opacity: 1; }
-  .subtitle-mob { display: none; }
 
   /* ── RESPONSIVE ── */
   @media (max-width: 800px) {
@@ -259,9 +258,7 @@
     }
     .character-col { position: static; order: -1; padding-top: 0; }
     .canvas-wrap { width: 100%; height: 300px; }
-    .subtitle-desk { display: none; }
-    .subtitle-mob { display: block; }
-    .contact-btn { width: 100%; justify-content: center; }
+.contact-btn { width: 100%; justify-content: center; }
   }
 
   @media (max-width: 480px) {
@@ -316,8 +313,6 @@
       </svg>
       LET'S TALK
     </a>
-
-    <div class="subtitle subtitle-desk" id="subtitle-desk"></div>
   </div>
 
   <!-- RIGHT: Character -->
@@ -326,7 +321,7 @@
       <canvas id="rive-canvas"></canvas>
     </div>
     <div class="char-status" id="char-status">Loading…</div>
-    <div class="subtitle subtitle-mob" id="subtitle-mob"></div>
+    <div class="subtitle" id="subtitle-mob"></div>
   </div>
 
 </div>
