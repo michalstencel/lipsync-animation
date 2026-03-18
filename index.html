@@ -350,14 +350,13 @@ const PHRASES = [
   },
 ];
 
-// Pre-fetch all timelines
-Promise.all(
-  PHRASES.map((p, i) =>
-    fetch('phrase' + (i + 1) + '.json')
-      .then(r => r.json())
-      .then(data => { p.timeline = data; })
-  )
-).catch(err => console.warn('Timeline load error:', err));
+// Pre-fetch all timelines independently (one failure doesn't block others)
+PHRASES.forEach((p, i) => {
+  fetch('phrase' + (i + 1) + '.json')
+    .then(r => r.json())
+    .then(data => { p.timeline = data; })
+    .catch(err => console.warn('Timeline load error for phrase', i + 1, ':', err));
+});
 
 // Viseme index → Rive input name (matches this specific .riv file)
 const VISEME_INPUT = {
@@ -465,7 +464,6 @@ function playPhrase(idx) {
   stopCurrent();
 
   const phrase = PHRASES[idx];
-  if (!phrase.timeline) return; // still loading
   currentPhraseIdx = idx;
 
   // Activate button
@@ -475,14 +473,14 @@ function playPhrase(idx) {
   // Show subtitle
   document.querySelectorAll('.subtitle').forEach(s => { s.textContent = '\u201c' + phrase.text + '\u201d'; s.classList.add('visible'); });
 
-  // Schedule viseme events
-  phrase.timeline.forEach(({ viseme, timeMs, weight = 1.0 }) => {
-    timeouts.push(setTimeout(() => setViseme(viseme, weight), timeMs));
-  });
-
-  // Schedule return to silence after last event
-  const lastMs = phrase.timeline[phrase.timeline.length - 1]?.timeMs || 0;
-  timeouts.push(setTimeout(() => setSilence(), lastMs + 200));
+  // Schedule viseme events (only if timeline loaded)
+  if (phrase.timeline && phrase.timeline.length > 0) {
+    phrase.timeline.forEach(({ viseme, timeMs, weight = 1.0 }) => {
+      timeouts.push(setTimeout(() => setViseme(viseme, weight), timeMs));
+    });
+    const lastMs = phrase.timeline[phrase.timeline.length - 1].timeMs;
+    timeouts.push(setTimeout(() => setSilence(), lastMs + 200));
+  }
 
   // Play audio
   const audio = new Audio(phrase.audio);
