@@ -12,7 +12,7 @@
 
   html, body {
     height: 100%;
-    background: #0d0d0d;
+    background: #B49FDD;
   }
 
   body {
@@ -64,20 +64,21 @@
   }
 
   .mute-btn {
-    position: fixed;
-    top: 20px;
-    right: 20px;
+    position: absolute;
+    top: 12px;
+    right: 12px;
     background: none;
     border: none;
     cursor: pointer;
-    padding: 6px;
-    color: #555;
+    padding: 4px;
+    color: rgba(255,255,255,0.6);
     transition: color 0.15s;
     line-height: 0;
+    z-index: 10;
   }
 
-  .mute-btn:hover { color: #888; }
-  .mute-btn.muted { color: #888; }
+  .mute-btn:hover { color: rgba(255,255,255,0.9); }
+  .mute-btn.muted { color: rgba(255,255,255,0.9); }
 
   .mute-btn .icon-sound,
   .mute-btn .icon-muted { display: block; }
@@ -91,9 +92,7 @@
 <div class="canvas-wrap">
   <canvas id="rive-canvas"></canvas>
   <button class="speak-btn" id="speak-btn" onclick="toggleSpeech()">SPEAK</button>
-</div>
-
-<button class="mute-btn" id="mute-btn" onclick="toggleMute()" title="Toggle mute">
+  <button class="mute-btn" id="mute-btn" onclick="toggleMute()" title="Toggle mute">
   <!-- Sound on -->
   <svg class="icon-sound" width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M11 5L6 9H2V15H6L11 19V5Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -107,6 +106,7 @@
     <path d="M17 9L23 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
   </svg>
 </button>
+</div>
 
 <script src="https://unpkg.com/@rive-app/webgl2@2.33.1"></script>
 <script>
